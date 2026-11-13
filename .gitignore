@@ -1,0 +1,19 @@
+# Build output
+dist/
+
+# Project sources cloned by `npm run build:ci` / CI
+.sources/
+
+# Per-machine overrides of project source locations
+projects.local.json
+
+# Dependencies (none today, but never commit them)
+node_modules/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

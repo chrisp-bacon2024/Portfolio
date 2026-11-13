@@ -1,0 +1,353 @@
+/* Portfolio chrome: portfolio bar (inside hosted apps), site header and
+   footer (portfolio pages), and the shared navigation menu.
+   BRAND_GUIDELINES.md 7.4, 7.11, 7.13, 4.5, 4.10.
+
+   ISOLATION RULES (enforced by scripts/tests/chrome-isolation.test.mjs):
+   - Every selector starts with a .pf- class. The only exception is :root,
+     which may declare --pf-* custom properties and nothing else.
+   - No element, universal or attribute-only selectors; no global resets.
+   - Only --pf-* variables are used. They are generated from
+     shared/brand-tokens.css and scoped to .pf-scope; the build prepends
+     them to this file (scripts/lib/tokens.mjs).
+   Properties that applications commonly reset (font, margins, list style,
+   text decoration...) are set explicitly so app CSS can't restyle the
+   chrome, and the chrome never restyles the app. */
+
+:root {
+  --pf-bar-height: 40px; /* hosted apps subtract this from their viewport height */
+}
+
+/* ---- Scope root: re-establishes brand typography inside the chrome ---- */
+
+.pf-scope {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: var(--pf-font-serif);
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: var(--pf-leading-tight);
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  color: var(--pf-color-text-ui);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.pf-scope *,
+.pf-scope *::before,
+.pf-scope *::after { box-sizing: border-box; }
+
+/* Element resets use :where() so their specificity is that of one class:
+   enough to beat an app's bare element rules (a { ... }), low enough
+   that the single-class component rules below override them. */
+.pf-scope :where(a) { color: inherit; text-decoration: none; }
+.pf-scope :where(ul, ol) { margin: 0; padding: 0; list-style: none; }
+.pf-scope :where(li) { margin: 0; padding: 0; }
+.pf-scope :where(button) { margin: 0; font: inherit; text-transform: none; }
+
+/* Keyboard focus ring (4.10), scoped to the chrome only. */
+.pf-scope :focus-visible {
+  outline: 2px solid var(--pf-color-navy);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--pf-color-focus-halo);
+}
+.pf-scope .pf-nav-link[aria-current]:focus-visible { outline-color: var(--pf-color-sky); }
+
+.pf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Skip link (7.13): hidden until focused ---- */
+
+.pf-skip {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  z-index: 1;
+  padding: 6px 12px;
+  border: var(--pf-border);
+  border-radius: var(--pf-radius-control);
+  background: var(--pf-color-white);
+  color: var(--pf-color-navy);
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateY(-300%);
+}
+.pf-scope .pf-skip:focus,
+.pf-scope .pf-skip:focus-visible { transform: none; }
+
+/* Empty landing target after the bar; zero-size, never visible. */
+.pf-content-anchor { display: block; height: 0; overflow: hidden; outline: none; }
+
+/* ---- Wordmark ---- */
+
+.pf-wordmark {
+  display: inline-block;
+  font-weight: 700;
+  letter-spacing: var(--pf-tracking-title);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--pf-color-navy);
+}
+.pf-scope .pf-wordmark { color: var(--pf-color-navy); }
+
+/* ---- Navigation links (section-title style, 7.4) ---- */
+
+.pf-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--pf-radius-control);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--pf-tracking-section);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--pf-transition-fast), border-color var(--pf-transition-fast);
+}
+.pf-scope .pf-nav-link { color: var(--pf-color-label); }
+.pf-scope .pf-nav-link:hover { background: var(--pf-color-hover-bg); }
+.pf-scope .pf-nav-link[aria-current] {
+  background: var(--pf-color-selected-bg);
+  border-color: var(--pf-color-selected-border);
+  color: var(--pf-color-selected-text);
+}
+.pf-scope .pf-nav-link[aria-current]:hover { background: var(--pf-color-selected-bg-hover); }
+
+/* ---- Menu: disclosure button + dropdown panel (4.5) ---- */
+
+.pf-menu { position: relative; }
+
+.pf-menu-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: var(--pf-border);
+  border-radius: var(--pf-radius-control);
+  background: var(--pf-color-white);
+  color: var(--pf-color-text-ui);
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--pf-transition-fast), border-color var(--pf-transition-fast);
+}
+/* Extends the hit area to 44px tall without changing the layout. */
+.pf-menu-button::before { content: ""; position: absolute; inset: -7px -4px; }
+.pf-scope .pf-menu-button:hover,
+.pf-scope .pf-menu-button[aria-expanded="true"] { background: var(--pf-color-hover-bg); }
+
+.pf-menu-caret { font-size: 11px; opacity: 0.7; }
+
+.pf-menu-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: var(--pf-z-chrome);
+  min-width: 220px;
+  padding: 6px;
+  border: var(--pf-border);
+  border-radius: var(--pf-radius-surface);
+  background: var(--pf-color-white);
+  box-shadow: var(--pf-shadow-float);
+}
+.pf-menu-panel[hidden] { display: none; }
+
+.pf-menu-list { display: flex; flex-direction: column; gap: 4px; }
+
+@media (pointer: coarse) {
+  .pf-menu-panel .pf-nav-link { min-height: 44px; }
+}
+
+/* ---- Portfolio bar (inside hosted applications, 7.4) ---- */
+
+.pf-bar-root {
+  position: relative;
+  z-index: var(--pf-z-chrome);
+  flex: none;
+}
+
+.pf-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: var(--pf-bar-height);
+  padding: 0 20px;
+  border-bottom: var(--pf-border);
+  background: var(--pf-color-white);
+  font-size: 13px;
+}
+
+.pf-bar-start {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pf-bar .pf-wordmark { font-size: 12px; }
+
+.pf-crumbs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-left: 12px;
+  border-left: var(--pf-border);
+  white-space: nowrap;
+}
+.pf-crumbs-list { display: flex; align-items: center; min-width: 0; }
+.pf-crumbs-list > li { display: flex; align-items: center; min-width: 0; }
+.pf-crumb-sep { margin: 0 6px; color: var(--pf-color-text-muted); }
+.pf-scope .pf-crumb-link { color: var(--pf-color-text-secondary); }
+.pf-scope .pf-crumb-link:hover {
+  color: var(--pf-color-navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pf-crumb-current {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--pf-color-text-ui);
+}
+
+.pf-bar-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.pf-scope .pf-bar-link { color: var(--pf-color-label); white-space: nowrap; }
+.pf-scope .pf-bar-link:hover {
+  color: var(--pf-color-navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .pf-bar { padding: 0 10px; }
+  .pf-bar .pf-crumbs,
+  .pf-bar .pf-bar-link { display: none; }
+}
+
+/* ---- Site header (portfolio pages, 7.4) ---- */
+
+.pf-site-header {
+  position: relative;
+  z-index: var(--pf-z-chrome);
+  flex: none;
+  border-bottom: var(--pf-border);
+  background: var(--pf-color-white);
+}
+
+.pf-site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: calc(var(--pf-content-max) + 40px);
+  margin: 0 auto;
+  padding: 12px 20px;
+}
+
+.pf-site-header .pf-wordmark { font-size: 19px; }
+.pf-site-header .pf-wordmark::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  margin-top: 4px;
+  border-radius: var(--pf-radius-xs);
+  background: var(--pf-color-accent);
+}
+
+/* Wide screens: links inline; the menu button is not needed. */
+.pf-site-nav .pf-menu-button { display: none; }
+.pf-site-nav .pf-menu-panel,
+.pf-site-nav .pf-menu-panel[hidden] {
+  position: static;
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.pf-site-nav .pf-menu-list { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+
+/* 900px or narrower: collapse into the dropdown, once the menu script has
+   initialised (without JavaScript the links simply wrap). */
+@media (max-width: 900px) {
+  .pf-site-nav[data-pf-menu-ready] .pf-menu-button { display: inline-flex; height: 36px; padding: 0 12px; }
+  .pf-site-nav[data-pf-menu-ready] .pf-menu-panel {
+    position: absolute;
+    display: block;
+    min-width: 240px;
+    padding: 6px;
+    border: var(--pf-border);
+    background: var(--pf-color-white);
+    box-shadow: var(--pf-shadow-float);
+  }
+  .pf-site-nav[data-pf-menu-ready] .pf-menu-panel[hidden] { display: none; }
+  .pf-site-nav[data-pf-menu-ready] .pf-menu-list { flex-direction: column; gap: 4px; }
+}
+
+.pf-menu-label-short { display: none; }
+
+@media (max-width: 700px) {
+  .pf-site-header-inner { gap: 12px; padding: 10px 16px; }
+  .pf-site-header .pf-wordmark { font-size: 16px; }
+  .pf-site-header .pf-menu-label { display: none; }
+  .pf-site-header .pf-menu-label-short { display: inline; }
+}
+
+/* ---- Site footer (portfolio pages, 7.11) ---- */
+
+.pf-site-footer {
+  flex: none;
+  padding: 24px 20px;
+  border-top: var(--pf-border);
+  background: var(--pf-color-white);
+  text-align: center;
+}
+.pf-site-footer .pf-wordmark { font-size: 12px; }
+.pf-site-footer .pf-wordmark::after {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin: 4px auto 0;
+  border-radius: var(--pf-radius-xs);
+  background: var(--pf-color-accent);
+}
+.pf-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.pf-scope .pf-footer-link { color: var(--pf-color-text-secondary); }
+.pf-scope .pf-footer-link:hover { color: var(--pf-color-navy); text-decoration: underline; text-underline-offset: 3px; }
+.pf-footer-copy { margin: 12px 0 0; font-size: 12px; color: var(--pf-color-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-scope .pf-nav-link,
+  .pf-scope .pf-menu-button { transition: none; }
+}

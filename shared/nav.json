@@ -1,0 +1,12 @@
+{
+  "$comment": "Single source for the main navigation. Used by the site header, the portfolio bar menu and the footer. Paths are relative to the site root.",
+  "siteName": "Christopher M. Palmer",
+  "githubUrl": "https://github.com/chrisp-bacon2024",
+  "sections": [
+    { "id": "home", "label": "Home", "path": "" },
+    { "id": "softwareengineering", "label": "Software Engineering", "path": "softwareengineering/" },
+    { "id": "datascience", "label": "Data Science", "path": "datascience/" },
+    { "id": "compositions", "label": "Compositions", "path": "compositions/" },
+    { "id": "about", "label": "About", "path": "about/" }
+  ]
+}

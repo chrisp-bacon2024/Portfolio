@@ -1,0 +1,24 @@
+{
+  "$comment": "Hosted applications. Each entry is built from its own repository; see docs/integrating-a-project.md.",
+  "projects": [
+    {
+      "id": "pathfinding-visualizer",
+      "title": "Pathfinding Visualizer",
+      "section": "softwareengineering",
+      "route": "softwareengineering/pathfindingvisualizer/",
+      "repo": "https://github.com/chrisp-bacon2024/pathfinding-visualizer.git",
+      "branch": "main",
+      "localPath": "../Pathfinding Visualizer",
+      "entry": "index.html",
+      "sourceUrl": "https://github.com/chrisp-bacon2024/pathfinding-visualizer",
+      "include": [
+        "index.html",
+        "style.css",
+        "*.js",
+        "algorithms/**/*.js",
+        "terrain/**/*.js"
+      ],
+      "test": "npm test"
+    }
+  ]
+}

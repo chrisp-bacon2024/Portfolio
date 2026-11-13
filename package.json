@@ -1,0 +1,17 @@
+{
+  "name": "christophermpalmer-portfolio",
+  "private": true,
+  "type": "module",
+  "description": "Source for christophermpalmer.com: portfolio pages, shared design system, and build-time integration of independently maintained project repositories.",
+  "engines": {
+    "node": ">=18.12"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "build:ci": "node scripts/build.mjs --fetch",
+    "preview": "node scripts/dev.mjs --dist",
+    "test": "node scripts/run-tests.mjs",
+    "test:projects": "node scripts/test-projects.mjs"
+  }
+}

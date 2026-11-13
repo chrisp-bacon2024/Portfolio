@@ -555,14 +555,14 @@ The work itself supplies the vibrancy: running applications, charts, recordings 
 | Page | Suggested URL | Contents |
 |---|---|---|
 | Home | `/` | Introduction; featured Software Engineering and Data Science work; a clear path to Compositions (7.5). |
-| Software Engineering | `/software-engineering/` | Gallery of applications: Genetic Snake, Sorting Visualizer, Pathfinding Visualizer, JobPilot, and future work. |
-| Data Science | `/data-science/` | Gallery of projects: FrequenSee, Philly Crime & Sports Analysis, the planned Alzheimer's predictive model, and future work. |
+| Software Engineering | `/softwareengineering/` | Gallery of applications: Genetic Snake, Sorting Visualizer, Pathfinding Visualizer, JobPilot, and future work. |
+| Data Science | `/datascience/` | Gallery of projects: FrequenSee, Philly Crime & Sports Analysis, the planned Alzheimer's predictive model, and future work. |
 | Compositions | `/compositions/` | List of pieces; each links to a piece page with recording, program notes, score preview and downloads (7.10). |
 | About | `/about/` | Biography, skills, résumé download, contact. |
 
 **Hosted projects:**
-- Each interactive project lives at its own stable URL, for example `/software-engineering/pathfinding-visualizer/`. That URL **is the application**.
-- **[Existing]** The Pathfinding Visualizer is currently served at `chrisp-bacon2024.github.io/pathfinding-visualizer/`. Either keep it there and link to it from the gallery, or serve it under the custom domain. Whichever you choose, the gallery link must go straight to the running app.
+- Each interactive project lives at its own stable URL, for example `/softwareengineering/pathfindingvisualizer/`. That URL **is the application**.
+- The Pathfinding Visualizer is served on the portfolio at `/softwareengineering/pathfindingvisualizer/`. **[Existing]** Its original standalone deployment at `chrisp-bacon2024.github.io/pathfinding-visualizer/` is kept as well; the portfolio copy is built from the same repository, never maintained separately. The gallery link must go straight to the running app.
 
 **Project types:**
 
@@ -621,7 +621,7 @@ A compact strip that gives every hosted app consistent branding and a way home, 
 - **At 700px or narrower:** show only the wordmark and the menu button.
 
 **Integration rules:**
-1. **One snippet for every app.** Ship the bar as a single, self-contained snippet: a small HTML fragment plus `portfolio-bar.css`, optionally as a Web Component (`<portfolio-bar section="software-engineering" project="Pathfinding Visualizer">`). Every app includes the same snippet, whatever framework it is built with.
+1. **One snippet for every app.** Ship the bar as a single, self-contained snippet: a small HTML fragment plus `portfolio-bar.css`, optionally as a Web Component (`<portfolio-bar section="softwareengineering" project="Pathfinding Visualizer">`). Every app includes the same snippet, whatever framework it is built with.
 2. **No style leakage.** Prefix every class with `pf-` (or use Shadow DOM), and don't ship global resets. The bar must not change the app's fonts, colours or layout, and the app's CSS must not change the bar.
 3. **Fit the app around the bar.** The app reserves the bar's height. Full-viewport apps such as the Pathfinding Visualizer, whose root is `height: 100vh`, change to `height: calc(100dvh - var(--pf-bar-height, 40px))`. This is the only change an existing app should need.
 4. **Leave app interfaces alone.** Apps keep their existing toolbars, controls, interaction models and visualization colours. Align them with the brand where it's cheap and harmless (the navy selected state, 1px slate borders, 6px radii), but never at the cost of an app's specialized UI.
