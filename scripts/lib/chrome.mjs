@@ -81,9 +81,8 @@ export function renderSiteHeader({ nav, root, current }) {
     if (current && !section) throw new Error(`Unknown navigation section "${current}"`);
     // Wide-ish screens show the current section on the trigger (7.4); phones
     // show "Menu", since a long section name doesn't fit beside the wordmark.
-    const buttonLabel = section
-        ? `<span class="pf-menu-label">${escapeHtml(section.label)}</span><span class="pf-menu-label-short">Menu</span>`
-        : `<span class="pf-menu-label">Menu</span>`;
+    const buttonLabel = `<span class="pf-menu-label">${escapeHtml(section ? section.label : "Menu")}</span>`
+        + `<span class="pf-menu-label-short">Menu</span>`;
 
     return `<header class="pf-scope pf-site-header" data-pf-isolate>
 <a class="pf-skip" href="#main" data-pf-skip>Skip to content</a>

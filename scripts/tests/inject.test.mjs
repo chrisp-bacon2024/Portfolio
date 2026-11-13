@@ -69,6 +69,15 @@ test("site pages: placeholders expand, current section marked, unknown placehold
     assert.throws(() => renderSitePage('<!-- pf:site-header section="nope" -->', { nav, root: "./", file: "t.html" }), /Unknown navigation section/);
 });
 
+test("site header menu button always has both a full and a short (phone) label", () => {
+    for (const marker of ['<!-- pf:site-header section="about" -->', "<!-- pf:site-header -->"]) {
+        const out = renderSitePage(marker, { nav, root: "./", file: "t.html" });
+        const button = out.match(/<button[^>]*data-pf-menu-button>([\s\S]*?)<\/button>/)[1];
+        assert.match(button, /class="pf-menu-label">[^<]+</, marker);
+        assert.match(button, /class="pf-menu-label-short">Menu</, marker);
+    }
+});
+
 test("404 page gets the <base> script before any stylesheet", () => {
     const out = renderSitePage("<head><!-- pf:head --></head>", { nav, root: "./", file: "404.html", is404: true });
     assert.ok(out.indexOf("createElement(\"base\")") < out.indexOf("<link"));
