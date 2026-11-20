@@ -13,6 +13,7 @@
     "build:projects": "node scripts/build-projects.mjs",
     "fetch": "node scripts/fetch-sources.mjs",
     "preview": "node scripts/dev.mjs --dist",
+    "previews": "node scripts/record-previews.mjs",
     "test": "node scripts/run-tests.mjs",
     "test:projects": "node scripts/test-projects.mjs"
   }

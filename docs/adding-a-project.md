@@ -78,6 +78,20 @@ Add an entry to `projects.json`:
 
 Then add a card to the section page (for example `site/softwareengineering/index.html`). Copy the Pathfinding Visualizer card, change the title, summary, badges and link, and give it its own accent colour (`<article class="card has-accent" style="--accent: …">`, see BRAND_GUIDELINES §7.6). Remove the project from that page's "Coming to this page" list.
 
+### Card preview
+
+Each card can show a short silent loop of the app working (BRAND_GUIDELINES 7.9, "Card previews").
+
+1. Add a recipe for the project in [scripts/preview-recipes.mjs](../scripts/preview-recipes.mjs). It drives the real app through its own controls: what to set up, which element to film, and how to start the motion. Copy the closest existing recipe. Wait for anything the app animates first (Pathfinding Visualizer ignores clicks while its terrain is still generating).
+2. Record it (needs Chrome and ffmpeg):
+   ```sh
+   npm run previews -- <project-id>
+   ```
+   This writes `site/previews/<project-id>/`: `preview.webm`, `preview.mp4` and `poster.webp`. Look at the poster and play the video before committing; aim for under 1 MB per file.
+3. Put the preview block at the top of the card. Copy it from an existing card and change the id, the `data-label` and the `aria-label` (what the preview shows). The page must load `shared/card-previews.js`, which the Software Engineering page already does.
+
+Re-record a preview after a visible change to the app. `npm run previews` with no id re-records them all.
+
 ## 3. Check locally
 
 ```sh

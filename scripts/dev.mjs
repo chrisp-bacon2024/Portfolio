@@ -111,7 +111,22 @@ function handle(req, res, getSite) {
     try {
         if (site.has(key)) {
             const type = TYPES[path.extname(key).toLowerCase()] || "application/octet-stream";
-            return send(res, 200, req.method === "HEAD" ? undefined : site.read(key), type);
+            const body = site.read(key);
+            // Byte ranges, as GitHub Pages serves them: Safari won't play
+            // video without them.
+            const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+            if (range && (range[1] || range[2])) {
+                const size = body.length;
+                const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+                const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+                if (start >= size || start > end) {
+                    return send(res, 416, undefined, type, { "Content-Range": `bytes */${size}` });
+                }
+                return send(res, 206, req.method === "HEAD" ? undefined : body.subarray(start, end + 1), type, {
+                    "Accept-Ranges": "bytes", "Content-Range": `bytes ${start}-${end}/${size}`
+                });
+            }
+            return send(res, 200, req.method === "HEAD" ? undefined : body, type, { "Accept-Ranges": "bytes" });
         }
         if (site.has(`${key}/index.html`)) {
             return send(res, 301, undefined, TYPES[".txt"], { Location: `${url.pathname}/${url.search}` });

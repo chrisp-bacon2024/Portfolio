@@ -76,6 +76,7 @@ Use another port with `npm run dev -- --port 3000`.
 | `npm run build:ci` | Builds from GitHub instead: clones each application's branch into `.sources/` first. |
 | `npm run fetch` | Only clones each application into `.sources/`. CI then tests those clones and builds with `node scripts/build.mjs --fetched`. |
 | `npm run build:projects` | Only compiles the applications that have a build step (`"build"` in projects.json). Add `-- --fetched` for the `.sources/` clones. |
+| `npm run previews` | Re-records the short looping card previews in `site/previews/` from the real apps (needs Chrome and ffmpeg). Add `-- <project-id>` for one. See docs/adding-a-project.md. |
 | `npm run preview` | Serves the built `dist/` folder exactly as it will be deployed. |
 | `npm test` | Tests for the build tooling (injection, file selection, link checking, CSS isolation). |
 | `npm run test:projects` | Runs each application's own test command (`"test"` in projects.json). Add `-- --fetched` to test the `.sources/` clones. |

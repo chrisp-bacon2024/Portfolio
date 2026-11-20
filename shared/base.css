@@ -175,6 +175,67 @@ a:hover {
 .card-action { margin-top: auto; font-size: var(--font-size-small); color: var(--color-navy); }
 .card-links { position: relative; z-index: 1; font-size: var(--font-size-small); }
 
+/* ---- Card thumbnail / preview (7.6, 7.9) ----
+   Edge to edge at the top of the card, 16:10, with a slate-200 rule beneath.
+   A preview is a silent loop driven by card-previews.js; the stretched card
+   link covers it, so clicking it opens the app. */
+
+.card-media {
+  position: relative;
+  margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-1);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: calc(var(--radius-surface) - var(--border-width)) calc(var(--radius-surface) - var(--border-width)) 0 0;
+  border-bottom: 1px solid var(--color-rule);
+  background: var(--color-surface-muted);
+}
+.card-media video,
+.card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pause / play, above the stretched link so it stays its own control. */
+.card-media-toggle {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-navy);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.card-media-toggle:hover { background: var(--color-white); }
+.card-media-toggle[hidden] { display: none; }
+/* Pause: two bars. Play: a triangle. */
+.card-media-toggle::before {
+  content: "";
+  box-sizing: content-box;
+  width: 3px;
+  height: 12px;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+}
+.card-media-toggle[data-state="paused"]::before {
+  width: 0;
+  height: 0;
+  margin-left: 3px;
+  border-left: 11px solid currentColor;
+  border-right: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;

@@ -25,7 +25,7 @@ function htmlRefs(html) {
     const refs = [];
     // Ignore comments, and inline scripts (which may contain URL-like strings).
     const stripped = html.replace(/<!--[\s\S]*?-->/g, "").replace(/<script\b(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi, "");
-    for (const match of stripped.matchAll(/\s(?:href|src)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
+    for (const match of stripped.matchAll(/\s(?:href|src|poster)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
         refs.push(match[1] ?? match[2]);
     }
     return refs;

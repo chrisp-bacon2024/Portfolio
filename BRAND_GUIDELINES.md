@@ -719,12 +719,23 @@ The Software Engineering and Data Science galleries share one layout:
 - **Text:** no text overlays, badges or logos baked into the image; the card provides all text.
 - **Alt text:** describe what the image shows ("Pathfinding Visualizer comparing three algorithm paths across mud and road terrain"), not "screenshot".
 
+#### Card previews (moving thumbnails)
+A project card's thumbnail may be a short **card preview**: a silent loop of the real app working (for example A* searching a grid, or a snake run). This is the one exception to "no autoplay" in 7.13 and 7.14, under these conditions:
+- **Silent and short:** no audio track; about 4–10 seconds. It shows one complete action (for example a search from start to path, or one whole run) and loops by cutting straight back to the start, with no fade.
+- **Recorded from the real app**, never a mock-up, with `npm run previews` (scripts/preview-recipes.mjs). Re-record after a visual change to the app.
+- **Same frame as a still thumbnail:** 16:10, the app's characteristic working area, no text overlays. Video at 800×500 (WebM, plus MP4 as a fallback); a 1200×750 WebP `poster`.
+- **Plays only while visible:** it starts when at least half of it is on screen, and stops when it scrolls away or the tab is hidden.
+- **Reduced motion:** with `prefers-reduced-motion: reduce` it never starts on its own; the poster shows.
+- **Pause control:** a visible pause/play button on every preview (WCAG 2.2.2), labelled with the project ("Pause Genetic Snake preview"), above the card's stretched link so it stays its own control.
+- **Light:** `preload="none"`, so nothing downloads until it is about to play; under about 1 MB per file.
+- **Accessible name:** the alt text above goes on the video (`role="img"` with `aria-label`).
+
 #### Application screenshots (in write-ups, About, reports)
 - **Style:** full-width figures, `border: 1px solid #cbd5e1`, 6px radius, no drop shadow or device frame (flat, like the brand).
 - **Captions:** 13px, slate-500, italic, 6px below the image.
 - **Annotations:** navy outlines or numbered markers with a white fill, explained in the caption.
 - **Motion:**
-  - prefer muted, looping MP4/WebM with a `poster` frame over large GIFs;
+  - prefer muted, looping MP4/WebM with a `poster` frame over large GIFs (card previews, above, follow their own rules);
   - don't autoplay when `prefers-reduced-motion: reduce` is set;
   - always provide a visible play/pause control.
 
@@ -827,7 +838,7 @@ The Software Engineering and Data Science galleries share one layout:
   - charts meet 3:1 for graphical elements and label series directly where possible.
 - **Images:** meaningful alt text for thumbnails, screenshots and score previews. Decorative imagery uses `alt=""`.
 - **Audio and video:**
-  - no autoplay;
+  - no autoplay (except silent card previews; see 7.9);
   - labelled, keyboard-operable controls with a visible focus state;
   - program notes and metadata give text context for recordings;
   - spoken or narrated video needs captions.
@@ -856,7 +867,7 @@ The Software Engineering and Data Science galleries share one layout:
 - use the legacy bright `#2563eb` blue or gradients;
 - use sky `#65b5e8` or slate-400 for meaningful text;
 - add shadows to flat elements;
-- autoplay audio or video;
+- autoplay audio or video (silent card previews, 7.9, are the only exception);
 - design a dark mode first. **[Proposed, optional]** If you add one later, invert the surfaces (slate-900 background, slate-100 text) and keep navy for selection with a sky border, but keep light mode as the canonical brand.
 
 ---

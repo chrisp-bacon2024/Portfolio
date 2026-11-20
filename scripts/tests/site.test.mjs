@@ -96,3 +96,15 @@ test("checker flags broken links, root-absolute URLs, escapes and forbidden file
     assert.match(errors, /forbidden file published: softwareengineering\/demoapp\/notes\.pdf/);
     assert.doesNotMatch(errors, /example\.com|#top|mailto|"\.\.\/"/);
 });
+
+test("video sources and posters are checked like any other reference", () => {
+    const config = fixture();
+    const rendered = renderAll(config);
+    rendered.set("softwareengineering/index.html", Buffer.from(
+        '<video poster="../previews/missing/poster.webp"><source src="../previews/missing/preview.webm"></video>'));
+    const errors = checkSite(rendered, config).filter(e => e.includes("previews/missing"));
+    assert.deepEqual(errors.sort(), [
+        'softwareengineering/index.html: broken reference "../previews/missing/poster.webp"',
+        'softwareengineering/index.html: broken reference "../previews/missing/preview.webm"'
+    ]);
+});
