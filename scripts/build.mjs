@@ -4,6 +4,8 @@
 //   node scripts/build.mjs --fetch    clone projects from GitHub into .sources/, then build
 //   node scripts/build.mjs --fetched  build from existing .sources/ clones (CI, after fetch-sources.mjs)
 //   node scripts/build.mjs --out DIR  write somewhere other than dist/
+//   --skip-project-builds             don't run projects' build steps first
+//                                     (CI runs them as a separate step)
 //
 // The build fails, and writes nothing, if any check in check.mjs fails.
 
@@ -12,13 +14,15 @@ import path from "node:path";
 import { checkSite } from "./lib/check.mjs";
 import { loadConfig, REPO_ROOT } from "./lib/config.mjs";
 import { collectOutputs, renderOutput } from "./lib/site.mjs";
+import { buildProjects } from "./lib/project-build.mjs";
 import { fetchSources, sourceInfo } from "./lib/sources.mjs";
 
 function parseArgs(argv) {
-    const args = { fetch: false, fetched: false, out: "dist" };
+    const args = { fetch: false, fetched: false, skipProjectBuilds: false, out: "dist" };
     for (let i = 0; i < argv.length; i++) {
         if (argv[i] === "--fetch") args.fetch = true;
         else if (argv[i] === "--fetched") args.fetched = true;
+        else if (argv[i] === "--skip-project-builds") args.skipProjectBuilds = true;
         else if (argv[i] === "--out") args.out = argv[++i];
         else throw new Error(`Unknown argument: ${argv[i]}`);
     }
@@ -35,6 +39,9 @@ function main() {
 
     const config = loadConfig({ sourceMode: args.fetch || args.fetched ? "fetched" : "local" });
     if (args.fetch) fetchSources(config);
+    if (!args.skipProjectBuilds) {
+        buildProjects(config, { install: config.sourceMode === "fetched" ? "always" : "auto" });
+    }
 
     const outputs = collectOutputs(config);
     const rendered = new Map();

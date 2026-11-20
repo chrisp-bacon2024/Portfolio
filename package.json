@@ -10,6 +10,7 @@
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "build:ci": "node scripts/build.mjs --fetch",
+    "build:projects": "node scripts/build-projects.mjs",
     "fetch": "node scripts/fetch-sources.mjs",
     "preview": "node scripts/dev.mjs --dist",
     "test": "node scripts/run-tests.mjs",

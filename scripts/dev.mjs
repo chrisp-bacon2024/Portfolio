@@ -15,6 +15,7 @@ import { existsSync, readFileSync } from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { loadConfig, REPO_ROOT } from "./lib/config.mjs";
+import { buildProjects } from "./lib/project-build.mjs";
 import { collectOutputs, renderOutput, walk } from "./lib/site.mjs";
 
 const TYPES = {
@@ -131,7 +132,10 @@ const getSite = args.dist ? (() => {
 
 if (!args.dist) {
     // Fail fast on configuration problems instead of on the first request.
+    // Projects with a build step are built once here; pages and other
+    // projects are read fresh on every request.
     try {
+        buildProjects(loadConfig());
         getSite();
     } catch (error) {
         console.error(`\n${error.message}\n`);
@@ -157,7 +161,10 @@ server.listen(args.port, "127.0.0.1", () => {
     const base = `http://localhost:${args.port}/`;
     console.log(`${args.dist ? "Previewing dist/" : "Live development server"} at ${base}`);
     if (!args.dist) {
-        for (const project of loadConfig().projects) console.log(`  ${project.title}: ${base}${project.route}`);
+        for (const project of loadConfig().projects) {
+            const note = project.build ? "  (built at startup; run `npm run build:projects` to rebuild)" : "";
+            console.log(`  ${project.title}: ${base}${project.route}${note}`);
+        }
         console.log("Edits to site/, shared/ and project folders appear on refresh. Ctrl+C to stop.");
     }
 });

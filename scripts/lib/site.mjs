@@ -3,6 +3,7 @@ import path from "node:path";
 import { createMatcher } from "./glob.mjs";
 import { injectPortfolioBar, renderSitePage } from "./inject.mjs";
 import { rootPrefix, toPosix } from "./paths.mjs";
+import { publishDir } from "./project-build.mjs";
 import { buildChromeCss, buildThemeCss } from "./tokens.mjs";
 
 // Never published from a project repository, even if a project's "include"
@@ -52,9 +53,11 @@ export function walk(dir, { skipDotfiles = false } = {}) {
     return files.sort();
 }
 
+// Files published from a project, relative to its publish folder (the
+// repository, or the build output for projects with a build step).
 export function projectFiles(project) {
     const included = createMatcher(project.include);
-    return walk(project.sourceDir).filter(file => included(file) && !isProjectDenied(file));
+    return walk(publishDir(project)).filter(file => included(file) && !isProjectDenied(file));
 }
 
 function missingSourceMessage(project, sourceMode) {
@@ -93,6 +96,12 @@ export function collectOutputs(config) {
         if (!existsSync(project.sourceDir) || !statSync(project.sourceDir).isDirectory()) {
             throw new Error(missingSourceMessage(project, config.sourceMode));
         }
+        const from = publishDir(project);
+        if (!existsSync(from)) {
+            throw new Error(`"${project.id}" hasn't been built yet: ${from} not found.
+`
+                + `  Run "npm run build:projects${config.sourceMode === "fetched" ? " -- --fetched" : ""}" (npm run dev and npm run build do this for you).`);
+        }
         const files = projectFiles(project);
         if (!files.includes(project.entry)) {
             throw new Error(`"${project.id}": entry "${project.entry}" is missing or not matched by "include"`);
@@ -100,7 +109,7 @@ export function collectOutputs(config) {
         for (const file of files) {
             add(`${project.route}${file}`, {
                 kind: file === project.entry ? "project-entry" : "static",
-                abs: path.join(project.sourceDir, file),
+                abs: path.join(from, file),
                 project
             });
         }

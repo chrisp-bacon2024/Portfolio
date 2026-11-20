@@ -7,7 +7,7 @@ The visual reference for everything here is [BRAND_GUIDELINES.md](BRAND_GUIDELIN
 ## How it fits together
 
 - **Each application stays in its own repository.** This repository never holds a copy of an application's source. The build reads each application from its repository (or your local clone) and publishes it at its route.
-- **[projects.json](projects.json)** lists the hosted applications: repository, branch, route, section, which files to publish (`include`), and the test command.
+- **[projects.json](projects.json)** lists the hosted applications: repository, branch, route, section, which files to publish (`include`), the test command, and an optional build step for applications that must be compiled.
 - **The portfolio bar** (wordmark, breadcrumb, source link, site menu) is added to each application's `index.html` at build time. Nothing else in the application changes.
 - **The site is live at <https://christophermpalmer.com/>**, deployed by GitHub Actions to GitHub Pages.
 - **The output is static files.** Every route is a real folder with an `index.html`, so direct links and refreshes work without a router.
@@ -59,9 +59,11 @@ docs/            deployment and adding-a-project guides
 npm run dev
 ```
 
-Open <http://localhost:8080/>. The Pathfinding Visualizer is at <http://localhost:8080/softwareengineering/pathfindingvisualizer/>.
+Open <http://localhost:8080/>. The startup message lists each application's address, for example <http://localhost:8080/softwareengineering/pathfindingvisualizer/>.
 
 The dev server renders each request from `site/`, `shared/` and the application's local folder, so **edits in either repository appear when you refresh**. There's nothing to rebuild or copy. It behaves like GitHub Pages: folder URLs serve `index.html`, a folder URL without its trailing slash redirects, and unknown paths get the 404 page. It also publishes exactly the same files as the production build, so a file the build would leave out (tests, PDFs, README...) returns 404 locally too.
+
+Applications with a build step (such as Genetic Snake, built with Vite) are compiled once when the dev server starts, and their dependencies are installed if `node_modules` is missing. To see changes to one while the server is running, run `npm run build:projects` in another terminal and refresh.
 
 Use another port with `npm run dev -- --port 3000`.
 
@@ -70,9 +72,10 @@ Use another port with `npm run dev -- --port 3000`.
 | Command | What it does |
 |---|---|
 | `npm run dev` | Live local server (above). |
-| `npm run build` | Builds the site into `dist/` from the local application folders. |
+| `npm run build` | Builds the site into `dist/` from the local application folders, compiling applications that have a build step first. |
 | `npm run build:ci` | Builds from GitHub instead: clones each application's branch into `.sources/` first. |
 | `npm run fetch` | Only clones each application into `.sources/`. CI then tests those clones and builds with `node scripts/build.mjs --fetched`. |
+| `npm run build:projects` | Only compiles the applications that have a build step (`"build"` in projects.json). Add `-- --fetched` for the `.sources/` clones. |
 | `npm run preview` | Serves the built `dist/` folder exactly as it will be deployed. |
 | `npm test` | Tests for the build tooling (injection, file selection, link checking, CSS isolation). |
 | `npm run test:projects` | Runs each application's own test command (`"test"` in projects.json). Add `-- --fetched` to test the `.sources/` clones. |
@@ -132,8 +135,9 @@ Each run:
 1. runs the build tooling tests (`npm test`);
 2. clones every application in projects.json (`npm run fetch`);
 3. runs each application's own tests on those clones (`npm run test:projects -- --fetched`);
-4. builds from the same clones (`node scripts/build.mjs --fetched`) and lists the deployed commits in the run summary;
-5. uploads `dist/` and deploys it.
+4. compiles the applications that have a build step (`npm run build:projects -- --fetched`), with a fresh dependency install;
+5. builds the site from the same clones (`node scripts/build.mjs --fetched --skip-project-builds`) and lists the deployed commits in the run summary;
+6. uploads `dist/` and deploys it.
 
 If any step fails, nothing is deployed and the live site stays as it was. CI uses the Node.js LTS version in [.node-version](.node-version).
 

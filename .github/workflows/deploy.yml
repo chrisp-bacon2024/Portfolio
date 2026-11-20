@@ -65,8 +65,11 @@ jobs:
       - name: Test the hosted applications
         run: npm run test:projects -- --fetched
 
+      - name: Build the hosted applications that need it
+        run: npm run build:projects -- --fetched
+
       - name: Build the site
-        run: node scripts/build.mjs --fetched
+        run: node scripts/build.mjs --fetched --skip-project-builds
 
       - name: Record the deployed commits
         run: |

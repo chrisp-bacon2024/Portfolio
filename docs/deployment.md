@@ -17,8 +17,9 @@ push to main, or Actions ▸ Run workflow ─────────►   deplo
                                                       1. npm test                 portfolio tooling tests
                                                       2. npm run fetch            clone every project
                                                       3. npm run test:projects    each project's own tests
-                                                      4. build --fetched          build from those clones
-                                                      5. deploy to GitHub Pages
+                                                      4. npm run build:projects   compile apps with a build step
+                                                      5. build --fetched          build the site from those clones
+                                                      6. deploy to GitHub Pages
 ```
 
 - **The site is always rebuilt in full.** Whatever triggered a run, every project in `projects.json` is fetched at the head of its branch. The notification only says "something changed".

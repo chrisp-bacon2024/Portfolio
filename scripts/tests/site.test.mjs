@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { after, test } from "node:test";
 import { checkSite } from "../lib/check.mjs";
+import { loadConfig } from "../lib/config.mjs";
 import { collectOutputs, renderOutput } from "../lib/site.mjs";
 import { fixtureConfig, makeFixtureProject } from "./helpers.mjs";
 
@@ -43,12 +44,12 @@ test("include list is an allowlist", () => {
 test("a complete fixture site passes every check", () => {
     const config = fixture();
     const errors = checkSite(renderAll(config), config);
-    // The real Software Engineering page links to the Pathfinding Visualizer,
-    // which this fixture config replaces, so the checker must report exactly
-    // that link: pages can't link to projects that aren't published.
-    assert.deepEqual(errors, [
-        'softwareengineering/index.html: broken reference "../softwareengineering/pathfindingvisualizer/"'
-    ]);
+    // The real section pages link to the real projects, which this fixture
+    // config replaces, so the checker must report exactly those links (pages
+    // can't link to projects that aren't published), and nothing else.
+    const expected = loadConfig().projects.map(project =>
+        `${project.section}/index.html: broken reference "../${project.route}"`);
+    assert.deepEqual([...errors].sort(), expected.sort());
 });
 
 test("site pages, shared assets and generated chrome CSS are all present", () => {

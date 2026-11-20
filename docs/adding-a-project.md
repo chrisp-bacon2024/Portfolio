@@ -9,7 +9,7 @@ The project keeps its own repository, its own GitHub Pages site and its own work
 | Kind | Example | How it's hosted |
 |---|---|---|
 | **Static app, no build step:** HTML, CSS and JS served as they are | Pathfinding Visualizer | Supported. Follow this guide. |
-| **Static app with a build step:** Vite, TypeScript, a bundler | Genetic Snake (`site/`, Vite) | Needs one portfolio feature first. See [Projects with a build step](#projects-with-a-build-step). |
+| **Static app with a build step:** Vite, TypeScript, a bundler | Genetic Snake (`site/`, Vite) | Supported. Follow this guide and add a `build` step; see [Projects with a build step](#projects-with-a-build-step). |
 | **Needs a server, a database or secret API keys** | JobPilot (likely) | Can't run on GitHub Pages. Give it a normal portfolio page (screenshots, write-up, links) instead of embedding it. |
 | **Analysis or notebook** | Data Science projects | A written project page with charts and findings, linking to the repository. Not an embedded app. |
 
@@ -73,6 +73,7 @@ Add an entry to `projects.json`:
 | `entry` | The page that gets the portfolio bar. |
 | `sourceUrl` | Optional. Adds the "Source ↗" link to the bar. |
 | `include` | Allowlist of files to publish, as globs. Tests, Markdown, PDFs, `package.json`, dotfiles and `node_modules` are never published even if they match. |
+| `build` | Optional. For projects that must be compiled; see [Projects with a build step](#projects-with-a-build-step). |
 | `test` | Optional. The command CI runs in the project folder before deploying. |
 
 Then add a card to the section page (for example `site/softwareengineering/index.html`). Copy the Pathfinding Visualizer card, change the title, summary, badges and link, and give it its own accent colour (`<article class="card has-accent" style="--accent: …">`, see BRAND_GUIDELINES §7.6). Remove the project from that page's "Coming to this page" list.
@@ -104,19 +105,30 @@ From then on, every push to the project's `main` updates both its own site and t
 
 ## Projects with a build step
 
-Genetic Snake's web demo lives in `site/` and is built with `npm ci && npm run build` (TypeScript + Vite) into `site/dist/`. The portfolio currently publishes source files directly, so before integrating it the portfolio build needs a small addition: an optional `build` field, for example:
+Some projects must be compiled before they can be published, for example a TypeScript + Vite site. Genetic Snake is the worked example: its web demo lives in `site/` and builds into `site/dist/`. Add a `build` field to its `projects.json` entry:
 
 ```json
-"build": { "dir": "site", "install": "npm ci", "command": "npm run build", "output": "site/dist" }
+"build": { "dir": "site", "install": "npm ci", "command": "npm run build", "output": "site/dist" },
+"include": ["index.html", "assets/**", "data/**"]
 ```
 
-When `build` is present, CI would run the install and build commands in the clone after its tests, and then publish from `output` (filtered by `include`) instead of from the repository root. `npm run dev` would serve the built output in the same way.
+| Field | Meaning |
+|---|---|
+| `build.dir` | Folder to run the commands in, relative to the repository. Optional; defaults to the root. |
+| `build.install` | Optional. Installs dependencies. Runs locally only when `node_modules` is missing, and always in CI, which uses fresh clones. Use `npm ci`, so the lockfile is respected. |
+| `build.command` | Produces the publishable files. |
+| `build.output` | The folder that gets published, relative to the repository. **`entry` and `include` are relative to this folder**, not to the repository. |
 
-What's already true for Genetic Snake:
-- `base: "./"` gives relative URLs;
-- the page scrolls normally, so no viewport change is needed;
-- its own Pages workflow stays as it is.
+Where builds run:
 
-It currently has no JavaScript tests, so either leave out `test` (the TypeScript check in `npm run build` still has to pass) or add some.
+- **`npm run dev`** compiles each built project once at startup. Run `npm run build:projects` in another terminal to pick up changes while the server is running.
+- **`npm run build`** compiles them before building the site.
+- **CI** compiles them in their own step, after the projects' tests and before the site build. A failing build stops the deploy.
 
-This feature will be added, with tests, when Genetic Snake is integrated. This guide will then be updated to match.
+Checklist for a built project:
+
+- [ ] **Relative asset URLs.** For Vite, set `base: "./"` in `vite.config.ts`. The build check rejects root-absolute URLs.
+- [ ] **A committed lockfile** (`package-lock.json`), so `npm ci` installs the same versions every time.
+- [ ] **A build that works on the CI Node version** (`.node-version`).
+- [ ] **No tests?** Leave out `test`. The compile step (for example `tsc` in `npm run build`) still has to pass.
+- [ ] **A sticky header of its own?** Make sure in-page links don't hide headings under it (`scroll-margin-top`), and consider making it static on phones. Genetic Snake does both.

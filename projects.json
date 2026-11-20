@@ -19,6 +19,28 @@
         "terrain/**/*.js"
       ],
       "test": "npm test"
+    },
+    {
+      "id": "genetic-snake",
+      "title": "Genetic Snake",
+      "section": "softwareengineering",
+      "route": "softwareengineering/geneticsnake/",
+      "repo": "https://github.com/chrisp-bacon2024/Genetic-Snake.git",
+      "branch": "main",
+      "localPath": "../Genetic Snake",
+      "entry": "index.html",
+      "sourceUrl": "https://github.com/chrisp-bacon2024/Genetic-Snake",
+      "build": {
+        "dir": "site",
+        "install": "npm ci",
+        "command": "npm run build",
+        "output": "site/dist"
+      },
+      "include": [
+        "index.html",
+        "assets/**",
+        "data/**"
+      ]
     }
   ]
 }

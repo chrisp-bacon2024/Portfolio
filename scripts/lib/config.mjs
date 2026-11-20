@@ -45,6 +45,21 @@ export function validateConfig({ nav, projects }) {
         if (project.include !== undefined && (!Array.isArray(project.include) || project.include.length === 0)) {
             errors.push(`${name}: "include" must be a non-empty list of globs`);
         }
+        if (project.build !== undefined) {
+            const { build } = project;
+            const relative = value => typeof value === "string" && value !== ""
+                && !value.startsWith("/") && !/^[a-z]:/i.test(value) && !value.split(/[\\/]/).includes("..");
+            if (typeof build !== "object" || build === null || Array.isArray(build)) {
+                errors.push(`${name}: "build" must be an object`);
+            } else {
+                if (typeof build.command !== "string" || !build.command.trim()) errors.push(`${name}: build.command is required`);
+                if (!relative(build.output)) errors.push(`${name}: build.output must be a folder inside the repository`);
+                if (build.dir !== undefined && !relative(build.dir)) errors.push(`${name}: build.dir must be a folder inside the repository`);
+                if (build.install !== undefined && (typeof build.install !== "string" || !build.install.trim())) {
+                    errors.push(`${name}: build.install must be a command`);
+                }
+            }
+        }
         if (project.sourceUrl && !/^https:\/\//.test(project.sourceUrl)) {
             errors.push(`${name}: sourceUrl must be an https URL`);
         }
