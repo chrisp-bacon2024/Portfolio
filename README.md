@@ -66,7 +66,8 @@ Use another port with `npm run dev -- --port 3000`.
 |---|---|
 | `npm run dev` | Live local server (above). |
 | `npm run build` | Builds the site into `dist/` from the local application folders. |
-| `npm run build:ci` | Builds from GitHub instead: clones each application's branch into `.sources/` first. This is what CI runs. |
+| `npm run build:ci` | Builds from GitHub instead: clones each application's branch into `.sources/` first. |
+| `npm run fetch` | Only clones each application into `.sources/`. CI then tests those clones and builds with `node scripts/build.mjs --fetched`. |
 | `npm run preview` | Serves the built `dist/` folder exactly as it will be deployed. |
 | `npm test` | Tests for the build tooling (injection, file selection, link checking, CSS isolation). |
 | `npm run test:projects` | Runs each application's own test command (`"test"` in projects.json). Add `-- --fetched` to test the `.sources/` clones. |
@@ -94,4 +95,20 @@ The build fails, and writes nothing, if:
 - The chrome stops keyboard events that start inside it, so application shortcuts (such as the visualizer's `d`, `b`, `j`, `a`, `w`, `g`, `m`, `r`) don't fire while you use the portfolio menu.
 - Each application keeps its own fonts, colours and layout. A full-height application reserves the bar's height with `var(--pf-bar-height, 0px)`. Outside the portfolio that variable is unset, so the application is unaffected.
 
-Further documentation (deployment, domain setup, integrating another application) will be added in `docs/` as those phases are completed.
+## Deployment
+
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) deploys the site to GitHub Pages using GitHub Actions. It runs when `main` is pushed, when an application's repository sends a `project-updated` `repository_dispatch` event, or when started by hand from the Actions tab. There is no scheduled run.
+
+Each run:
+
+1. runs the build tooling tests (`npm test`);
+2. clones every application in projects.json (`npm run fetch`);
+3. runs each application's own tests on those clones (`npm run test:projects -- --fetched`);
+4. builds from the same clones (`node scripts/build.mjs --fetched`) and lists the deployed commits in the run summary;
+5. uploads `dist/` and deploys it.
+
+If any step fails, nothing is deployed and the live site stays as it was. CI uses the Node.js LTS version in [.node-version](.node-version).
+
+Deploying here never changes an application's repository or its own GitHub Pages site.
+
+Further documentation (domain setup, integrating another application) will be added in `docs/` as those phases are completed.

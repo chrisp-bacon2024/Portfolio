@@ -56,7 +56,7 @@ export function projectFiles(project) {
 
 function missingSourceMessage(project, sourceMode) {
     return sourceMode === "fetched"
-        ? `Source for "${project.id}" not found at ${project.sourceDir}. Run the build with --fetch.`
+        ? `Source for "${project.id}" not found at ${project.sourceDir}. Run "npm run fetch" first, or build with --fetch.`
         : `Source for "${project.id}" not found at ${project.sourceDir}.\n`
           + `  Clone ${project.repo} there, set "localPath" for "${project.id}" in projects.local.json,\n`
           + `  or run "npm run build:ci" to build from GitHub instead.`;

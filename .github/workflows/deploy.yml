@@ -1,0 +1,102 @@
+# Builds christophermpalmer.com and deploys it to GitHub Pages.
+#
+# Each hosted application stays in its own repository. This workflow clones
+# each one (projects.json), runs its own tests, and only then builds and
+# deploys, so a failing application is never published. The application's
+# own standalone GitHub Pages site is not touched.
+#
+# Runs on:
+#   - pushes to main in this repository
+#   - repository_dispatch "project-updated", sent by an application's
+#     repository after it changes (set up in Phase 8)
+#   - manual runs (Actions tab > Deploy site > Run workflow)
+
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [project-updated]
+  workflow_dispatch:
+
+# Read-only by default; only the deploy job can write to Pages.
+permissions:
+  contents: read
+
+# One deployment at a time. A run that is already deploying finishes; a newer
+# queued run replaces any older queued one, so the latest sources win.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the portfolio
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js (LTS, from .node-version)
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Show what triggered this run
+        env:
+          EVENT: ${{ github.event_name }}
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
+          echo "Event: $EVENT"
+          if [ "$EVENT" = "repository_dispatch" ]; then echo "Payload: $PAYLOAD"; fi
+          node --version
+
+      - name: Test the portfolio build tooling
+        run: npm test
+
+      - name: Fetch the hosted applications
+        run: npm run fetch
+
+      - name: Test the hosted applications
+        run: npm run test:projects -- --fetched
+
+      - name: Build the site
+        run: node scripts/build.mjs --fetched
+
+      - name: Record the deployed commits
+        run: |
+          {
+            echo "### Deployed sources"
+            echo '```json'
+            cat dist/build-info.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

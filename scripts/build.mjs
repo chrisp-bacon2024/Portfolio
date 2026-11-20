@@ -1,7 +1,8 @@
 // Builds the complete site into dist/.
 //
 //   node scripts/build.mjs            projects read from their local folders
-//   node scripts/build.mjs --fetch    projects cloned from GitHub into .sources/ (CI)
+//   node scripts/build.mjs --fetch    clone projects from GitHub into .sources/, then build
+//   node scripts/build.mjs --fetched  build from existing .sources/ clones (CI, after fetch-sources.mjs)
 //   node scripts/build.mjs --out DIR  write somewhere other than dist/
 //
 // The build fails, and writes nothing, if any check in check.mjs fails.
@@ -14,9 +15,10 @@ import { collectOutputs, renderOutput } from "./lib/site.mjs";
 import { fetchSources, sourceInfo } from "./lib/sources.mjs";
 
 function parseArgs(argv) {
-    const args = { fetch: false, out: "dist" };
+    const args = { fetch: false, fetched: false, out: "dist" };
     for (let i = 0; i < argv.length; i++) {
         if (argv[i] === "--fetch") args.fetch = true;
+        else if (argv[i] === "--fetched") args.fetched = true;
         else if (argv[i] === "--out") args.out = argv[++i];
         else throw new Error(`Unknown argument: ${argv[i]}`);
     }
@@ -31,7 +33,7 @@ function main() {
         throw new Error(`Refusing to write build output to ${outDir}`);
     }
 
-    const config = loadConfig({ sourceMode: args.fetch ? "fetched" : "local" });
+    const config = loadConfig({ sourceMode: args.fetch || args.fetched ? "fetched" : "local" });
     if (args.fetch) fetchSources(config);
 
     const outputs = collectOutputs(config);
