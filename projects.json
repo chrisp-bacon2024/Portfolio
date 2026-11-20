@@ -1,5 +1,5 @@
 {
-  "$comment": "Hosted applications. Each entry is built from its own repository; see docs/integrating-a-project.md.",
+  "$comment": "Hosted applications. Each entry is built from its own repository; see docs/adding-a-project.md.",
   "projects": [
     {
       "id": "pathfinding-visualizer",

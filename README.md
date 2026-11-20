@@ -97,7 +97,7 @@ The build fails, and writes nothing, if:
 
 ## Deployment
 
-[.github/workflows/deploy.yml](.github/workflows/deploy.yml) deploys the site to GitHub Pages using GitHub Actions. It runs when `main` is pushed, when an application's repository sends a `project-updated` `repository_dispatch` event, or when started by hand from the Actions tab. There is no scheduled run.
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) deploys the site to GitHub Pages using GitHub Actions. It runs when `main` is pushed, when an application's repository reports a change (a `project-updated` `repository_dispatch` event, sent by the shared [notify workflow](.github/workflows/notify-portfolio.yml)), or when started by hand from the Actions tab. There is no scheduled run.
 
 Each run:
 
@@ -111,4 +111,11 @@ If any step fails, nothing is deployed and the live site stays as it was. CI use
 
 Deploying here never changes an application's repository or its own GitHub Pages site.
 
-Further documentation (domain setup, integrating another application) will be added in `docs/` as those phases are completed.
+Each application repository contains an identical copy of [templates/project-workflow/portfolio-update.yml](templates/project-workflow/portfolio-update.yml), so pushing to the application updates both its own site and this one.
+
+## Documentation
+
+- [docs/deployment.md](docs/deployment.md): how deployment and automatic updates work, the token setup, rotation and troubleshooting.
+- [docs/adding-a-project.md](docs/adding-a-project.md): step-by-step checklist for hosting another project.
+
+Domain setup will be documented in Phase 9.

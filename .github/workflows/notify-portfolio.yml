@@ -1,0 +1,60 @@
+# Reusable workflow: asks this repository (the portfolio) to redeploy after a
+# hosted project changes. It never runs on its own.
+#
+# Each project repository calls it from an identical small workflow, copied
+# from templates/project-workflow/portfolio-update.yml. Keeping the logic
+# here means a fix applies to every project at once.
+#
+# It sends a "project-updated" repository_dispatch event, which starts
+# deploy.yml. deploy.yml then fetches and tests every project itself, so this
+# workflow only needs to say "something changed".
+#
+# Setup and troubleshooting: docs/deployment.md.
+
+name: Notify portfolio
+
+on:
+  workflow_call:
+    secrets:
+      PORTFOLIO_DISPATCH_TOKEN:
+        description: Fine-grained token that can send repository_dispatch events to the Portfolio repository.
+        required: true
+
+# The job uses the token above, not the caller's GITHUB_TOKEN.
+permissions: {}
+
+jobs:
+  notify:
+    name: Ask the portfolio to redeploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Send repository_dispatch to the Portfolio repository
+        env:
+          GH_TOKEN: ${{ secrets.PORTFOLIO_DISPATCH_TOKEN }}
+          PORTFOLIO_REPO: chrisp-bacon2024/Portfolio
+          SOURCE_REPO: ${{ github.repository }}
+          SOURCE_REF: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::The PORTFOLIO_DISPATCH_TOKEN secret is not set in $SOURCE_REPO. See docs/deployment.md in $PORTFOLIO_REPO."
+            exit 1
+          fi
+
+          node -e '
+            const e = process.env;
+            process.stdout.write(JSON.stringify({
+              event_type: "project-updated",
+              client_payload: { repository: e.SOURCE_REPO, ref: e.SOURCE_REF, sha: e.SOURCE_SHA, run: e.SOURCE_RUN }
+            }));
+          ' > payload.json
+
+          if ! gh api --method POST "repos/$PORTFOLIO_REPO/dispatches" --input payload.json; then
+            echo "::error::Could not notify $PORTFOLIO_REPO. The token may have expired, or may lack Contents: Read and write on that repository. See docs/deployment.md."
+            exit 1
+          fi
+
+          echo "Asked $PORTFOLIO_REPO to redeploy for $SOURCE_REPO@${SOURCE_SHA:0:7}." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Deploy runs: https://github.com/$PORTFOLIO_REPO/actions/workflows/deploy.yml" >> "$GITHUB_STEP_SUMMARY"
