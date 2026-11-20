@@ -9,7 +9,8 @@ The visual reference for everything here is [BRAND_GUIDELINES.md](BRAND_GUIDELIN
 - **Each application stays in its own repository.** This repository never holds a copy of an application's source. The build reads each application from its repository (or your local clone) and publishes it at its route.
 - **[projects.json](projects.json)** lists the hosted applications: repository, branch, route, section, which files to publish (`include`), and the test command.
 - **The portfolio bar** (wordmark, breadcrumb, source link, site menu) is added to each application's `index.html` at build time. Nothing else in the application changes.
-- **The output is static files** for GitHub Pages. Every route is a real folder with an `index.html`, so direct links and refreshes work without a router.
+- **The site is live at <https://christophermpalmer.com/>**, deployed by GitHub Actions to GitHub Pages.
+- **The output is static files.** Every route is a real folder with an `index.html`, so direct links and refreshes work without a router.
 
 ```
 site/            portfolio pages (templates with <!-- pf:... --> placeholders)
@@ -20,6 +21,9 @@ shared/          design system, published at /shared/
   chrome/            portfolio bar, site header, footer and menu (CSS + JS)
 scripts/         build, dev server and tests (no dependencies)
 projects.json    hosted applications
+.github/         deploy workflow and the shared notify workflow
+templates/       files copied unchanged into each application repository
+docs/            deployment and adding-a-project guides
 ```
 
 | Route | Contents |
@@ -78,7 +82,7 @@ The build fails, and writes nothing, if:
 
 - an application's entry page is missing, or the portfolio bar couldn't be added to it;
 - any local link, stylesheet, script or JavaScript `import` in the output points at a file that isn't published;
-- a link is root-absolute (`/about/`), which would break at the GitHub Pages project URL; all internal links are relative;
+- a link is root-absolute (`/about/`); all internal links are relative, so the site works from any folder, such as a GitHub Pages project URL, not only at a domain root;
 - a forbidden file would be published from an application: tests, Markdown, PDFs, `package.json`, dotfiles or `node_modules`, even if the `include` list matches it;
 - any required page (home, the five sections, 404) is missing.
 
@@ -118,4 +122,25 @@ Each application repository contains an identical copy of [templates/project-wor
 - [docs/deployment.md](docs/deployment.md): how deployment and automatic updates work, the token setup, rotation and troubleshooting.
 - [docs/adding-a-project.md](docs/adding-a-project.md): step-by-step checklist for hosting another project.
 
-Domain setup will be documented in Phase 9.
+## Domain and HTTPS
+
+The site is served at **https://christophermpalmer.com/**. Every other address redirects there with a 301:
+
+- `http://christophermpalmer.com/`
+- `www.christophermpalmer.com` (HTTP or HTTPS)
+- the GitHub Pages project URL `chrisp-bacon2024.github.io/Portfolio/`
+
+The settings that make this work:
+
+| Where | Setting |
+|---|---|
+| Registrar DNS | `christophermpalmer.com`: A records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` |
+| Registrar DNS | `www`: CNAME `chrisp-bacon2024.github.io` |
+| Portfolio ▸ Settings ▸ Pages | Source: **GitHub Actions**. Custom domain: `christophermpalmer.com`. **Enforce HTTPS** on. |
+| Account ▸ Settings ▸ Pages | `christophermpalmer.com` verified with a TXT record, so no other GitHub account can claim it. |
+
+- **The domain is set in the Pages settings, not in a `CNAME` file.** Deployments made with GitHub Actions ignore `CNAME` files, so the build doesn't produce one.
+- **The HTTPS certificate is managed by GitHub.** It's issued by Let's Encrypt, covers the bare domain and `www`, and renews automatically.
+- **If the certificate ever gets stuck** (the Pages settings say it's still being issued after an hour, or `https://` doesn't load), clear the custom domain, **Save**, enter it again and **Save**. That restarts issuance. If it still fails, make sure the registrar has no AAAA records and no CAA records that exclude `letsencrypt.org`.
+
+Each application's own GitHub Pages site (for example <https://chrisp-bacon2024.github.io/pathfinding-visualizer/>) is separate from this domain and stays on its github.io address.
