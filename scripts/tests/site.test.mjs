@@ -55,7 +55,7 @@ test("site pages, shared assets and generated chrome CSS are all present", () =>
     const config = fixture();
     const outputs = collectOutputs(config);
     for (const p of ["index.html", "404.html", "softwareengineering/index.html", "datascience/index.html",
-        "compositions/index.html", "about/index.html", "shared/brand-tokens.css", "shared/base.css",
+        "compositions/index.html", "about/index.html", "shared/brand-tokens.css", "shared/base.css", "shared/theme/v1/theme.css",
         "shared/chrome/chrome.css", "shared/chrome/chrome.js"]) {
         assert.ok(outputs.has(p), p);
     }

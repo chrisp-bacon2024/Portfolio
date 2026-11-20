@@ -58,7 +58,8 @@ test("injection refuses malformed or already-injected HTML", () => {
 test("site pages: placeholders expand, current section marked, unknown placeholders fail", () => {
     const template = '<head><!-- pf:head --></head><body><!-- pf:site-header section="datascience" --><a href="{{root}}about/">x</a><!-- pf:site-footer --></body>';
     const out = renderSitePage(template, { nav, root: "../", file: "t.html" });
-    assert.match(out, /href="\.\.\/shared\/brand-tokens\.css"/);
+    assert.match(out, /href="\.\.\/shared\/theme\/v1\/theme\.css"/);
+    assert.doesNotMatch(out, /brand-tokens\.css/);
     assert.match(out, /href="\.\.\/datascience\/" aria-current="page">Data Science/);
     assert.match(out, /href="\.\.\/about\/">x/);
     assert.match(out, /pf-site-footer/);

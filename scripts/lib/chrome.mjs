@@ -16,11 +16,13 @@ export function chromeAssets(root) {
     ].join("\n");
 }
 
-// <head> assets for portfolio pages: brand tokens and base styles first,
-// then the chrome.
+export const THEME_PATH = "shared/theme/v1/theme.css";
+
+// <head> assets for portfolio pages: the theme (tokens and shared
+// components) and page-level base styles first, then the chrome.
 export function pageAssets(root) {
     return [
-        `<link rel="stylesheet" href="${root}shared/brand-tokens.css">`,
+        `<link rel="stylesheet" href="${root}${THEME_PATH}">`,
         `<link rel="stylesheet" href="${root}shared/base.css">`,
         chromeAssets(root)
     ].join("\n");

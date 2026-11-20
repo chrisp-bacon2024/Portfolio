@@ -33,6 +33,24 @@ export function renderScopedTokens(css, selector = ".pf-scope") {
     return `${selector} {\n${lines.join("\n")}\n}\n`;
 }
 
+// The theme (shared/theme/v<n>/theme.css) gets every brand token as an
+// unprefixed :root variable above its components, so one stylesheet gives an
+// application both. Applications opt into the theme, so unprefixed names are
+// intended here (unlike the chrome, which apps never choose to load).
+export function renderRootTokens(css) {
+    const lines = parseRootTokens(css).map(([name, value]) => `  ${name}: ${value};`);
+    return `:root {\n${lines.join("\n")}\n}\n`;
+}
+
+export function buildThemeCss(sharedDir, themeFile) {
+    const tokens = readFileSync(path.join(sharedDir, "brand-tokens.css"), "utf8");
+    const components = readFileSync(themeFile, "utf8");
+    return "/* Generated tokens: from shared/brand-tokens.css at build time. */\n"
+        + renderRootTokens(tokens)
+        + "\n"
+        + components;
+}
+
 export function buildChromeCss(sharedDir) {
     const tokens = readFileSync(path.join(sharedDir, "brand-tokens.css"), "utf8");
     const chrome = readFileSync(path.join(sharedDir, "chrome", "chrome.css"), "utf8");

@@ -1,6 +1,7 @@
 {
   "$comment": "Single source for the main navigation. Used by the site header, the portfolio bar menu and the footer. Paths are relative to the site root.",
   "siteName": "Christopher M. Palmer",
+  "siteUrl": "https://christophermpalmer.com",
   "githubUrl": "https://github.com/chrisp-bacon2024",
   "sections": [
     { "id": "home", "label": "Home", "path": "" },

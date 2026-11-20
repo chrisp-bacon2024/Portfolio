@@ -18,6 +18,7 @@ shared/          design system, published at /shared/
   brand-tokens.css   brand tokens (portfolio pages only)
   base.css           base styles (portfolio pages only, never loaded into apps)
   nav.json           the five main navigation items
+  theme/v1/theme.css shared theme: tokens + components, for pages and applications
   chrome/            portfolio bar, site header, footer and menu (CSS + JS)
 scripts/         build, dev server and tests (no dependencies)
 projects.json    hosted applications
@@ -88,16 +89,39 @@ The build fails, and writes nothing, if:
 
 `dist/build-info.json` records the commit of the portfolio and of each application in every build.
 
-## Shared styling and isolation
+## Shared theme
 
-- Portfolio pages load `brand-tokens.css`, `base.css` and the chrome.
-- Hosted applications load **only** `shared/chrome/chrome.css` and `chrome.js`:
+[shared/theme/v1/theme.css](shared/theme/v1/theme.css) is the house style that portfolio pages and applications share. It contains:
+
+- **every brand token** as a CSS variable (`--color-navy`, `--space-3`, `--radius-control`…). The build copies these from [shared/brand-tokens.css](shared/brand-tokens.css), so they're defined in one place;
+- **shared components**, from BRAND_GUIDELINES §4: `.btn` (with `.selected` and `.btn-primary`), `.page-title`, `.section-title`, `.select`, `.range`, `.popover`, `.badge` (with `.badge-positive`) and `.kbd`.
+
+Changing a token or component there changes the portfolio and every application that uses the theme, on their next deploy.
+
+How applications load it:
+
+- **Standalone:** an application links the live file, `https://christophermpalmer.com/shared/theme/v1/theme.css`, before its own stylesheet. Its standalone site picks up theme changes as soon as the portfolio deploys.
+- **Inside the portfolio:** the build rewrites that link to the copy deployed with it, so the portfolio and its applications always change together.
+
+Rules that keep the theme safe to share:
+
+- **Classes only.** It has no element selectors, resets or globals, so nothing changes until markup uses a class; a test enforces this.
+- **Low, flat specificity.** An application can override any component with one class.
+- **Versioned.** Compatible changes go into `v1`. A change that would break existing markup goes into a new `v2/` folder, and applications move over one at a time.
+
+Application-specific styles (layout, canvas drawing, special controls) stay in the application's own CSS, written with the theme's variables rather than raw colours. Canvas colours set in JavaScript aren't covered yet.
+
+## Isolation
+
+- Portfolio pages load the theme, `base.css` (page-level element styles, never loaded into applications) and the chrome.
+- The portfolio adds **only** `shared/chrome/chrome.css` and `chrome.js` to a hosted application. An application opts into the theme itself.
+- The chrome is isolated from the application:
   - every selector in `chrome.css` starts with a `.pf-` class;
   - its variables are `--pf-` copies of the brand tokens, generated at build time;
   - there are no global resets;
   - a test enforces all of this.
 - The chrome stops keyboard events that start inside it, so application shortcuts (such as the visualizer's `d`, `b`, `j`, `a`, `w`, `g`, `m`, `r`) don't fire while you use the portfolio menu.
-- Each application keeps its own fonts, colours and layout. A full-height application reserves the bar's height with `var(--pf-bar-height, 0px)`. Outside the portfolio that variable is unset, so the application is unaffected.
+- A full-height application reserves the bar's height with `var(--pf-bar-height, 0px)`. Outside the portfolio that variable is unset, so the application is unaffected.
 
 ## Deployment
 

@@ -1,0 +1,135 @@
+/* christophermpalmer.com theme, version 1: shared components.
+
+   Published at https://christophermpalmer.com/shared/theme/v1/theme.css.
+   The build puts every token from shared/brand-tokens.css (as :root
+   variables) above this file, so one stylesheet gives an application both
+   the tokens and these components.
+
+   Who loads it:
+   - every portfolio page;
+   - every hosted application, standalone (from the URL above) and inside
+     the portfolio (the build rewrites that URL to the portfolio's own copy).
+
+   Rules for this file:
+   - Classes only. No element selectors, no resets, nothing global: loading
+     the theme changes nothing until markup opts in with a class.
+   - Keep specificity low and flat (one class, plus states), so an
+     application can override any component with a single class.
+   - Version 1 may gain components and change values (every page updates at
+     once). A change that would break existing markup belongs in v2/, with
+     v1 left in place until every application has moved.
+
+   Components: BRAND_GUIDELINES.md section 4. */
+
+/* ---- Titles (3.3, 4.3) ---- */
+
+/* Page title: uppercase, letter-spaced, navy, with the short sky rule under
+   it. Alignment is left to the page. */
+.page-title {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-title);
+  text-transform: uppercase;
+  color: var(--color-heading);
+}
+.page-title::after {
+  content: "";
+  display: block;
+  width: var(--title-rule-width);
+  height: var(--title-rule-height);
+  margin: 6px auto 0;
+  border-radius: var(--radius-xs);
+  background: var(--color-accent);
+}
+
+/* Section title above a group of controls. */
+.section-title {
+  margin: 0;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-section);
+  text-transform: uppercase;
+  color: var(--color-label);
+}
+
+/* ---- Buttons (4.1) ---- */
+
+.btn {
+  padding: var(--btn-padding);
+  border: var(--border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text-ui);
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.btn:hover:not(:disabled) { background: var(--color-hover-bg); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Selected / active / current choice: navy with a sky border. */
+.btn.selected {
+  background: var(--color-selected-bg);
+  border-color: var(--color-selected-border);
+  color: var(--color-selected-text);
+}
+.btn.selected:hover:not(:disabled) { background: var(--color-selected-bg-hover); }
+
+/* The main action on a page. Same look as selected. */
+.btn-primary {
+  background: var(--color-selected-bg);
+  border-color: var(--color-selected-border);
+  color: var(--color-selected-text);
+}
+.btn-primary:hover:not(:disabled) { background: var(--color-selected-bg-hover); }
+
+/* ---- Select (4.6) ---- */
+
+.select {
+  padding: var(--btn-padding-compact);
+  border: var(--border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text-ui);
+  font: inherit;
+  cursor: pointer;
+}
+.select:hover { background: var(--color-hover-bg); }
+
+/* ---- Range slider (4.7) ---- */
+
+.range { accent-color: var(--color-text-ui); cursor: pointer; }
+
+/* ---- Floating surface: dropdown menus, tooltips, popovers (4.5, 4.9) ---- */
+
+.popover {
+  border: var(--border);
+  border-radius: var(--radius-surface);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+}
+
+/* ---- Badges (4.9, 4.11) ---- */
+
+.badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-micro);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-ui);
+  background: var(--color-surface-muted);
+  color: var(--color-label);
+}
+.badge-positive { background: var(--color-success-bg); color: var(--color-success-text); }
+
+/* ---- Keyboard shortcut hint ---- */
+
+.kbd {
+  padding: 2px 5px;
+  border: var(--border);
+  border-radius: 3px;
+  font-size: var(--font-size-micro);
+  color: var(--color-text-secondary);
+}

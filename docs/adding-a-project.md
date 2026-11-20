@@ -18,6 +18,11 @@ The project keeps its own repository, its own GitHub Pages site and its own work
 Each item below keeps the project working **both** standalone and inside the portfolio.
 
 - [ ] **Use relative URLs only.** Write `style.css` or `./data/x.json`, never `/style.css`. The app is served from `/softwareengineering/<name>/`, not from `/`, and the build rejects root-absolute links. For Vite, set `base: "./"` in `vite.config.ts` (Genetic Snake already does).
+- [ ] **Use the shared theme.** Link it before the app's own stylesheet:
+  ```html
+  <link rel="stylesheet" href="https://christophermpalmer.com/shared/theme/v1/theme.css">
+  ```
+  Then use its components for standard controls (`class="btn"`, `btn selected`, `page-title`, `section-title`, `select`, `range`, `popover`, `badge`) and its variables for everything else (`var(--color-border)`, `var(--space-3)`…), instead of raw colours and sizes. Keep only app-specific layout in the app's CSS. Pathfinding Visualizer's `style.css` is the worked example. The portfolio build points the link at its own copy; standalone, the app loads it from the live site, so working on the app locally needs an internet connection.
 - [ ] **Full-height layouts reserve room for the portfolio bar.** If the app fills the viewport (`height: 100vh` or similar), keep that line as a fallback and add this after it:
   ```css
   height: calc(100dvh - var(--pf-bar-height, 0px));

@@ -3,7 +3,7 @@ import path from "node:path";
 import { createMatcher } from "./glob.mjs";
 import { injectPortfolioBar, renderSitePage } from "./inject.mjs";
 import { rootPrefix, toPosix } from "./paths.mjs";
-import { buildChromeCss } from "./tokens.mjs";
+import { buildChromeCss, buildThemeCss } from "./tokens.mjs";
 
 // Never published from a project repository, even if a project's "include"
 // list would match: tests, docs, tooling, dotfiles and local artefacts such
@@ -23,6 +23,9 @@ export const PROJECT_DENY = [
     "**/package-lock.json"
 ];
 export const isProjectDenied = createMatcher(PROJECT_DENY);
+
+// Theme stylesheets, one per version: shared/theme/v1/theme.css, ...
+export const THEME_FILE = /^theme\/v\d+\/theme\.css$/;
 
 // shared/ files that are build inputs, not published assets.
 const SHARED_EXCLUDE = new Set(["nav.json"]);
@@ -81,7 +84,7 @@ export function collectOutputs(config) {
     for (const file of walk(config.sharedDir, { skipDotfiles: true })) {
         if (SHARED_EXCLUDE.has(file)) continue;
         add(`shared/${file}`, {
-            kind: file === "chrome/chrome.css" ? "chrome-css" : "static",
+            kind: file === "chrome/chrome.css" ? "chrome-css" : THEME_FILE.test(file) ? "theme-css" : "static",
             abs: path.join(config.sharedDir, file)
         });
     }
@@ -130,6 +133,8 @@ export function renderOutput(outputPath, descriptor, config) {
                 file: `${descriptor.project.id}/${descriptor.project.entry}`
             }));
         }
+        case "theme-css":
+            return Buffer.from(buildThemeCss(config.sharedDir, descriptor.abs));
         case "chrome-css":
             return Buffer.from(buildChromeCss(config.sharedDir));
         default:
