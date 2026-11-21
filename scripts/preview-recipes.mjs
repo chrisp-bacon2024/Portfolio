@@ -74,5 +74,60 @@ export default {
         start: page => page.eval(`document.getElementById("featured-play").click()`),
         // Mid-run, with a long snake (the run lasts about 5.8 s at 3×).
         poster: 4
+    },
+
+    "sorting-visualizer": {
+        alt: "Sorting Visualizer: heap sort puts a 25 by 25 grid of colors in order by hue, building the sorted rows up from the bottom",
+        // Tall enough for the grid to reach its full 640px.
+        viewport: [1440, 1000],
+        cols: 25,
+        async prepare(page) {
+            await page.waitFor(`document.querySelectorAll(".algo-picker__option").length > 0`);
+            // Speed first: in Tutorial speed the app locks the grid to 5×5.
+            // "Very fast" (preset 5) plays a whole sort in about 9.5 s.
+            await page.select("#speed-preset", "5");
+            await page.eval(`(() => {
+                const cols = document.getElementById("grid-cols");
+                cols.value = "${this.cols}";
+                cols.dispatchEvent(new Event("input", { bubbles: true }));
+            })()`);
+            await page.wait(300);
+            await page.eval(`document.querySelector('.algo-picker__option[data-value="heap"]').click()`);
+            // Hue numbers off: at this size they are noise.
+            await page.eval(`(() => {
+                const values = document.getElementById("show-hue");
+                if (values.checked) values.click();
+            })()`);
+            await page.wait(500);
+            // Film the whole square grid, centred in a 16:10 box with room
+            // either side, so no rows are cropped (heap sort fills the
+            // sorted rows from the bottom up). The box is an invisible
+            // element, because the recorder films one element. (The heap
+            // tree panel only shows in Tutorial speed.)
+            await page.eval(`(() => {
+                const r = document.querySelector(".canvas-container").getBoundingClientRect();
+                const pad = 16;
+                const height = r.height + 2 * pad;
+                const width = height * 16 / 10;
+                const box = document.createElement("div");
+                box.id = "pf-preview-frame";
+                Object.assign(box.style, {
+                    position: "absolute", pointerEvents: "none",
+                    left: (r.left + r.width / 2 - width / 2 + scrollX) + "px",
+                    top: (r.top - pad + scrollY) + "px",
+                    width: width + "px",
+                    height: height + "px"
+                });
+                document.body.append(box);
+            })()`);
+        },
+        frame: "#pf-preview-frame",
+        start: page => page.click("#play-toggle"),
+        done: `document.getElementById("status").textContent.startsWith("Sorted")`,
+        hold: 1.2,
+        maxSeconds: 15,
+        // Partway through: the heap above, the sorted rainbow growing from
+        // the bottom.
+        poster: 6
     }
 };
