@@ -41,6 +41,23 @@
         "assets/**",
         "data/**"
       ]
+    },
+    {
+      "id": "sorting-visualizer",
+      "title": "Sorting Visualizer",
+      "section": "softwareengineering",
+      "route": "softwareengineering/sortingvisualizer/",
+      "repo": "https://github.com/chrisp-bacon2024/Sorting-Visualizer.git",
+      "branch": "main",
+      "localPath": "../Sorting Visualizer",
+      "entry": "index.html",
+      "sourceUrl": "https://github.com/chrisp-bacon2024/Sorting-Visualizer",
+      "include": [
+        "index.html",
+        "css/*.css",
+        "js/**/*.js",
+        "favicon_io/*"
+      ]
     }
   ]
 }
