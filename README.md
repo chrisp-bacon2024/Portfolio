@@ -35,6 +35,7 @@ docs/            deployment and adding-a-project guides
 | `/softwareengineering/geneticsnake/` | Genetic Snake (from [its own repository](https://github.com/chrisp-bacon2024/Genetic-Snake)) |
 | `/softwareengineering/sortingvisualizer/` | Sorting Visualizer (from [its own repository](https://github.com/chrisp-bacon2024/Sorting-Visualizer)) |
 | `/datascience/` | Data Science |
+| `/datascience/phillycrimesports/` | Philly Crime & Sports report (from [its own repository](https://github.com/chrisp-bacon2024/Philly-Crime-and-Sports)) |
 | `/compositions/` | Compositions |
 | `/about/` | About |
 
@@ -49,6 +50,7 @@ docs/            deployment and adding-a-project guides
   E:\Programming\Pathfinding Visualizer     https://github.com/chrisp-bacon2024/pathfinding-visualizer
   E:\Programming\Genetic Snake              https://github.com/chrisp-bacon2024/Genetic-Snake
   E:\Programming\Sorting Visualizer         https://github.com/chrisp-bacon2024/Sorting-Visualizer
+  E:\Programming\Philly Crime and Sports    https://github.com/chrisp-bacon2024/Philly-Crime-and-Sports
   ```
 
   If a clone lives somewhere else, create `projects.local.json` (git-ignored):

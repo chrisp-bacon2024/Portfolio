@@ -58,6 +58,23 @@
         "js/**/*.js",
         "favicon_io/*"
       ]
+    },
+    {
+      "id": "philly-crime-and-sports",
+      "title": "Philly Crime & Sports",
+      "section": "datascience",
+      "route": "datascience/phillycrimesports/",
+      "repo": "https://github.com/chrisp-bacon2024/Philly-Crime-and-Sports.git",
+      "branch": "main",
+      "localPath": "../Philly Crime and Sports",
+      "entry": "index.html",
+      "sourceUrl": "https://github.com/chrisp-bacon2024/Philly-Crime-and-Sports",
+      "include": [
+        "index.html",
+        "report.css",
+        "report.js",
+        "report-data.json"
+      ]
     }
   ]
 }
