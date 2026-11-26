@@ -45,11 +45,19 @@ test("a complete fixture site passes every check", () => {
     const config = fixture();
     const errors = checkSite(renderAll(config), config);
     // The real section pages link to the real projects, which this fixture
-    // config replaces, so the checker must report exactly those links (pages
-    // can't link to projects that aren't published), and nothing else.
-    const expected = loadConfig().projects.map(project =>
-        `${project.section}/index.html: broken reference "../${project.route}"`);
-    assert.deepEqual([...errors].sort(), expected.sort());
+    // config replaces, so the checker must report those links (pages can't
+    // link to projects that aren't published), and nothing else. A project
+    // may also be linked from another section's page, or to a #fragment.
+    const projects = loadConfig().projects;
+    const projectLink = /^[a-z]+\/index\.html: broken reference "\.\.\/([^"#]+)(#[^"]*)?"$/;
+    for (const error of errors) {
+        const match = error.match(projectLink);
+        assert.ok(match && projects.some(p => p.route === match[1]), `unexpected error: ${error}`);
+    }
+    for (const project of projects) {
+        const own = `${project.section}/index.html: broken reference "../${project.route}"`;
+        assert.ok(errors.includes(own), `missing: ${own}`);
+    }
 });
 
 test("site pages, shared assets and generated chrome CSS are all present", () => {
