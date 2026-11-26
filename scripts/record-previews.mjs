@@ -98,14 +98,16 @@ async function screenshot(page, clip) {
     return shot.data;
 }
 
-// Waits until the motion is over: recipe.done plus recipe.hold, or
-// recipe.seconds.
+// Waits until the motion is over: recipe.done plus recipe.hold (held
+// longer if needed to reach recipe.length), or recipe.seconds.
 async function waitForMotion(page, recipe, started) {
     if (recipe.done) {
         const limit = (recipe.maxSeconds ?? 15) * 1000;
         while (Date.now() - started < limit && !(await page.eval(recipe.done))) await page.wait(100);
         if (Date.now() - started >= limit) throw new Error(`the motion didn't finish within ${recipe.maxSeconds ?? 15} s (raise maxSeconds or speed it up)`);
-        await page.wait((recipe.hold ?? 1) * 1000);
+        const hold = (recipe.hold ?? 1) * 1000;
+        const toLength = recipe.length ? recipe.length * 1000 - (Date.now() - started) : 0;
+        await page.wait(Math.max(hold, toLength));
     } else {
         await page.wait((recipe.seconds ?? 8) * 1000);
     }

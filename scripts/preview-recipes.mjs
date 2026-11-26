@@ -10,6 +10,8 @@
 //   done       optional JS expression that is true once the motion has
 //              finished; recording stops `hold` seconds after it, or at
 //              `maxSeconds`, whichever comes first
+//   length     optional: hold on the result until the clip is this long,
+//              so the cards' clips match
 //   seconds    fixed length when there is no `done` (prepare may set it)
 //   poster     when to take the still image: "end", or seconds after the
 //              start. It shows before playback and with reduced motion
@@ -21,6 +23,11 @@
 // Clips loop by cutting straight back to their first frame (no fade), so
 // film one complete action: the start state, the motion, a short hold on
 // the result.
+//
+// The apps run at one of their slower speeds and every clip lasts about
+// CLIP_SECONDS, so the cards move calmly, and in step, rather than
+// grabbing attention when the page opens.
+const CLIP_SECONDS = 22;
 
 export default {
     "pathfinding-visualizer": {
@@ -31,7 +38,11 @@ export default {
         async prepare(page) {
             await page.waitFor(`document.getElementById("gridCanvas")?.width > 0`);
             await page.click("#generate-map-btn");
-            await page.select("#playback-speed", "10");
+            // 3×, between the menu's 2× (about 28 s for A*) and 4× (about
+            // 12 s). The app reads the menu's value as a number, so add the
+            // option just for the recording.
+            await page.eval(`document.getElementById("playback-speed").add(new Option("3x", "3"))`);
+            await page.select("#playback-speed", "3");
             // Generating animates the terrain for about 2 seconds, and the
             // app ignores algorithm clicks until it has finished.
             await page.wait(3000);
@@ -40,7 +51,8 @@ export default {
         start: page => page.click('.algorithm-btn[data-algorithm="astar"]'),
         done: `(() => { const s = document.getElementById("playback-slider"); return Number(s.max) > 0 && Number(s.value) >= Number(s.max); })()`,
         hold: 1.2,
-        maxSeconds: 12,
+        length: CLIP_SECONDS,
+        maxSeconds: 30,
         poster: "end"
     },
 
@@ -50,7 +62,7 @@ export default {
         // One whole run, first move to win, so the loop simply restarts it:
         // generation 100 clears the 5×5 board in 174 moves.
         generation: 100,
-        speed: 3, // one of the player's speed options (1, 3, 10, 20, 50); rays show below 10
+        speed: 1, // one of the player's speed options (1, 3, 10, 20, 50); rays show below 10
         async prepare(page) {
             await page.waitFor(`document.getElementById("featured-generation")?.options.length > 0`);
             // Film just the board and the network: hide the sticky header,
@@ -64,16 +76,17 @@ export default {
             await page.select("#featured-speed", String(this.speed));
             await page.select("#featured-generation", String(this.generation));
             await page.wait(2000);
-            // Record the run's length at this speed, plus a second on the win.
+            // Record the run at this speed, holding on the win for at least
+            // a second and until the clip is CLIP_SECONDS long.
             const run = await page.eval(`fetch("data/manifest.json").then(r => r.json()).then(m =>
                 [...m.grid_generations, ...m.featured_generations].find(e => e.generation === ${this.generation}))`);
-            this.seconds = run.frame_count / (run.ticks_per_second * this.speed) + 1;
+            this.seconds = Math.max(run.frame_count / (run.ticks_per_second * this.speed) + 1, CLIP_SECONDS);
         },
         frame: ".featured-demo",
         anchor: "top",
         start: page => page.eval(`document.getElementById("featured-play").click()`),
-        // Mid-run, with a long snake (the run lasts about 5.8 s at 3×).
-        poster: 4
+        // Mid-run, with a long snake (the run lasts about 17.4 s at 1×).
+        poster: 12
     },
 
     "sorting-visualizer": {
@@ -84,8 +97,8 @@ export default {
         async prepare(page) {
             await page.waitFor(`document.querySelectorAll(".algo-picker__option").length > 0`);
             // Speed first: in Tutorial speed the app locks the grid to 5×5.
-            // "Very fast" (preset 5) plays a whole sort in about 9.5 s.
-            await page.select("#speed-preset", "5");
+            // "Medium" (preset 3) plays a whole sort in about 20 s.
+            await page.select("#speed-preset", "3");
             await page.eval(`(() => {
                 const cols = document.getElementById("grid-cols");
                 cols.value = "${this.cols}";
@@ -125,9 +138,10 @@ export default {
         start: page => page.click("#play-toggle"),
         done: `document.getElementById("status").textContent.startsWith("Sorted")`,
         hold: 1.2,
-        maxSeconds: 15,
+        length: CLIP_SECONDS,
+        maxSeconds: 30,
         // Partway through: the heap above, the sorted rainbow growing from
         // the bottom.
-        poster: 6
+        poster: 12
     }
 };
