@@ -82,7 +82,7 @@ Then add a card to the section page (for example `site/softwareengineering/index
 
 Each card can show a short silent loop of the app working (BRAND_GUIDELINES 7.9, "Card previews").
 
-1. Add a recipe for the project in [scripts/preview-recipes.mjs](../scripts/preview-recipes.mjs). It drives the real app through its own controls: what to set up, which element to film, and how to start the motion. Copy the closest existing recipe. Wait for anything the app animates first (Pathfinding Visualizer ignores clicks while its terrain is still generating).
+1. Add a recipe for the project in [scripts/preview-recipes.mjs](../scripts/preview-recipes.mjs). It drives the real app through its own controls: what to set up, which element to film, and how to start the motion. Copy the closest existing recipe. Wait for anything the app animates first (Pathfinding Visualizer ignores clicks while its terrain is still generating). Pick an app speed at which the motion takes most of `CLIP_SECONDS` (about 22 s), and set `length: CLIP_SECONDS` so the clip holds on the result until it matches the other cards.
 2. Record it (needs Chrome and ffmpeg):
    ```sh
    npm run previews -- <project-id>

@@ -721,7 +721,8 @@ The Software Engineering and Data Science galleries share one layout:
 
 #### Card previews (moving thumbnails)
 A project card's thumbnail may be a short **card preview**: a silent loop of the real app working (for example A* searching a grid, or a snake run). This is the one exception to "no autoplay" in 7.13 and 7.14, under these conditions:
-- **Silent and short:** no audio track; about 4–10 seconds. It shows one complete action (for example a search from start to path, or one whole run) and loops by cutting straight back to the start, with no fade.
+- **Silent and calm:** no audio track. It shows one complete action (for example a search from start to path, or one whole run) and loops by cutting straight back to the start, with no fade.
+- **Slow, and the same length on every card:** film the app at one of its slower speeds so the cards don't pull focus when the page opens, and make every preview the same length, about 22 seconds (`CLIP_SECONDS` in the recipes). A preview that finishes early holds on its result until it reaches that length. Slow the app down rather than slowing the video, which would make the motion jerky.
 - **Recorded from the real app**, never a mock-up, with `npm run previews` (scripts/preview-recipes.mjs). Re-record after a visual change to the app.
 - **Same frame as a still thumbnail:** 16:10, the app's characteristic working area, no text overlays. Video at 800×500 (WebM, plus MP4 as a fallback); a 1200×750 WebP `poster`.
 - **Plays only while visible:** it starts when at least half of it is on screen, and stops when it scrolls away or the tab is hidden.

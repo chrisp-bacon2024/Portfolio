@@ -32,6 +32,8 @@ docs/            deployment and adding-a-project guides
 | `/` | Home |
 | `/softwareengineering/` | Software Engineering |
 | `/softwareengineering/pathfindingvisualizer/` | Pathfinding Visualizer (from [its own repository](https://github.com/chrisp-bacon2024/pathfinding-visualizer)) |
+| `/softwareengineering/geneticsnake/` | Genetic Snake (from [its own repository](https://github.com/chrisp-bacon2024/Genetic-Snake)) |
+| `/softwareengineering/sortingvisualizer/` | Sorting Visualizer (from [its own repository](https://github.com/chrisp-bacon2024/Sorting-Visualizer)) |
 | `/datascience/` | Data Science |
 | `/compositions/` | Compositions |
 | `/about/` | About |
@@ -45,6 +47,8 @@ docs/            deployment and adding-a-project guides
   ```
   E:\Programming\Portfolio                  this repository
   E:\Programming\Pathfinding Visualizer     https://github.com/chrisp-bacon2024/pathfinding-visualizer
+  E:\Programming\Genetic Snake              https://github.com/chrisp-bacon2024/Genetic-Snake
+  E:\Programming\Sorting Visualizer         https://github.com/chrisp-bacon2024/Sorting-Visualizer
   ```
 
   If a clone lives somewhere else, create `projects.local.json` (git-ignored):
@@ -76,7 +80,7 @@ Use another port with `npm run dev -- --port 3000`.
 | `npm run build:ci` | Builds from GitHub instead: clones each application's branch into `.sources/` first. |
 | `npm run fetch` | Only clones each application into `.sources/`. CI then tests those clones and builds with `node scripts/build.mjs --fetched`. |
 | `npm run build:projects` | Only compiles the applications that have a build step (`"build"` in projects.json). Add `-- --fetched` for the `.sources/` clones. |
-| `npm run previews` | Re-records the short looping card previews in `site/previews/` from the real apps (needs Chrome and ffmpeg). Add `-- <project-id>` for one. See docs/adding-a-project.md. |
+| `npm run previews` | Re-records the short looping card previews in `site/previews/` from the real apps (needs Chrome and ffmpeg). Add `-- <project-id>` for one. Every clip is the same length (`CLIP_SECONDS`, about 22 s) with the app at a slow speed. See docs/adding-a-project.md. |
 | `npm run preview` | Serves the built `dist/` folder exactly as it will be deployed. |
 | `npm test` | Tests for the build tooling (injection, file selection, link checking, CSS isolation). |
 | `npm run test:projects` | Runs each application's own test command (`"test"` in projects.json). Add `-- --fetched` to test the `.sources/` clones. |
@@ -113,7 +117,7 @@ Rules that keep the theme safe to share:
 - **Low, flat specificity.** An application can override any component with one class.
 - **Versioned.** Compatible changes go into `v1`. A change that would break existing markup goes into a new `v2/` folder, and applications move over one at a time.
 
-Application-specific styles (layout, canvas drawing, special controls) stay in the application's own CSS, written with the theme's variables rather than raw colours. Canvas colours set in JavaScript aren't covered yet.
+Application-specific styles (layout, canvas drawing, special controls) stay in the application's own CSS, written with the theme's variables rather than raw colours. CSS can't reach canvas drawing, so an application that draws text or lines on a canvas reads the theme variables from JavaScript instead (Sorting Visualizer's `js/visualize/ink.js` does this).
 
 ## Isolation
 
